@@ -32,11 +32,11 @@ function main(config) {
 
   const stripInlineIgnoreCase = (pattern) => pattern.replace(/\(\?i\)/g, "");
   const toJsRegex = (pattern) => new RegExp(stripInlineIgnoreCase(pattern), "i");
-  const proRegex = /(^|[\s_-])Pro($|[\s_-])/i;
+  const proRegex = /Pro/i;
   const toProGroupName = (regionName) => `${regionName}Pro`;
   const toProRegionFilter = (regionFilter) => {
     const regionBody = stripInlineIgnoreCase(regionFilter);
-    return `(?i)((^|[[:space:]_-])Pro($|[[:space:]_-]).*(${regionBody})|(${regionBody}).*(^|[[:space:]_-])Pro($|[[:space:]_-]))`;
+    return `(?i)(Pro.*(${regionBody})|(${regionBody}).*Pro)`;
   };
   const isProNode = (proxy) => proxy && proxy.name && proRegex.test(proxy.name);
 
