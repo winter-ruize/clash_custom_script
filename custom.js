@@ -32,12 +32,34 @@ function main(config) {
 
   const stripInlineIgnoreCase = (pattern) => pattern.replace(/\(\?i\)/g, "");
   const toJsRegex = (pattern) => new RegExp(stripInlineIgnoreCase(pattern), "i");
+  const proRegex = /(^|[\s_-])Pro($|[\s_-])/i;
+  const clashProFilter = "(?i)(^|[[:space:]_-])Pro($|[[:space:]_-])";
+  const toProGroupName = (regionName) => `${regionName}Pro`;
+  const toProRegionFilter = (regionFilter) => {
+    const regionBody = stripInlineIgnoreCase(regionFilter);
+    return `(?i)((^|[[:space:]_-])Pro($|[[:space:]_-]).*(${regionBody})|(${regionBody}).*(^|[[:space:]_-])Pro($|[[:space:]_-]))`;
+  };
+  const isProNode = (proxy) => proxy && proxy.name && proRegex.test(proxy.name);
 
   const availableRegions = [];
+  const availableProRegions = [];
+  const regionAndOther = [];
+
   for (const [regionName, regionConfig] of Object.entries(regionFilters)) {
     const regex = toJsRegex(regionConfig.filter);
-    const matchedProxies = allProxies.filter((proxy) => proxy && proxy.name && regex.test(proxy.name));
-    if (matchedProxies.length > 0) availableRegions.push(regionName);
+    const isUsRegion = regionName === "美国节点";
+    const normalProxies = allProxies.filter((proxy) => proxy && proxy.name && regex.test(proxy.name) && (isUsRegion || !isProNode(proxy)));
+    const proProxies = allProxies.filter((proxy) => proxy && proxy.name && regex.test(proxy.name) && isProNode(proxy));
+
+    if (normalProxies.length > 0) {
+      availableRegions.push(regionName);
+      regionAndOther.push(regionName);
+    }
+    if (proProxies.length > 0) {
+      const proGroupName = toProGroupName(regionName);
+      availableProRegions.push(proGroupName);
+      regionAndOther.push(proGroupName);
+    }
   }
 
   const excludePatternBody = Object.values(regionFilters)
@@ -46,9 +68,7 @@ function main(config) {
   const otherRegex = new RegExp(excludePatternBody, "i");
   const otherProxies = allProxies.filter((proxy) => proxy && proxy.name && !otherRegex.test(proxy.name));
   const hasOtherNodes = otherProxies.length > 0;
-  const otherGroupName = hasOtherNodes ? ["其他节点"] : [];
-
-  const regionAndOther = [...availableRegions, ...otherGroupName];
+  if (hasOtherNodes) regionAndOther.push("其他节点");
 
   const pick = (items) => {
     const validGroupNames = new Set([
@@ -64,7 +84,7 @@ function main(config) {
   const policyProxyOptions = pick(["自动选择", ...regionAndOther, "手动切换", "DIRECT"]);
   const proxyFirstOptions = pick(["节点选择", "自动选择", ...regionAndOther, "手动切换", "DIRECT"]);
   const directFirstOptions = pick(["DIRECT", "节点选择", "自动选择", ...regionAndOther, "手动切换"]);
-  const usFirstOptions = pick(["美国节点", "节点选择", "自动选择", "狮城节点", "香港节点", "台湾节点", "日本节点", "韩国节点", "其他节点", "手动切换", "DIRECT"]);
+  const usFirstOptions = pick(["美国节点Pro", "美国节点", "节点选择", "自动选择", "狮城节点Pro", "狮城节点", "香港节点Pro", "香港节点", "台湾节点Pro", "台湾节点", "日本节点Pro", "日本节点", "韩国节点Pro", "韩国节点", "其他节点", "手动切换", "DIRECT"]);
   const gameOptions = pick(["节点选择", "自动选择", "DIRECT", ...regionAndOther, "手动切换"]);
 
   const proxyGroups = [
@@ -164,16 +184,32 @@ function main(config) {
   ];
 
   for (const [regionName, regionConfig] of Object.entries(regionFilters)) {
-    if (!availableRegions.includes(regionName)) continue;
-    proxyGroups.push({
-      name: regionName,
-      icon: regionConfig.icon,
-      "include-all": true,
-      filter: regionConfig.filter,
-      type: "url-test",
-      interval: 300,
-      tolerance: 50
-    });
+    if (availableRegions.includes(regionName)) {
+      const regionGroup = {
+        name: regionName,
+        icon: regionConfig.icon,
+        "include-all": true,
+        filter: regionConfig.filter,
+        type: "url-test",
+        interval: 300,
+        tolerance: 50
+      };
+      if (regionName !== "美国节点") regionGroup["exclude-filter"] = clashProFilter;
+      proxyGroups.push(regionGroup);
+    }
+
+    const proGroupName = toProGroupName(regionName);
+    if (availableProRegions.includes(proGroupName)) {
+      proxyGroups.push({
+        name: proGroupName,
+        icon: regionConfig.icon,
+        "include-all": true,
+        filter: toProRegionFilter(regionConfig.filter),
+        type: "url-test",
+        interval: 300,
+        tolerance: 50
+      });
+    }
   }
 
   if (hasOtherNodes) {
@@ -419,7 +455,7 @@ function main(config) {
     "RULE-SET,OneDrive,全球直连",
     "RULE-SET,Microsoft,全球直连",
     "RULE-SET,Apple,苹果服务",
-    "RULE-SET,AI平台-国外,AI节点", 
+    "RULE-SET,AI平台-国外,AI节点",
     "RULE-SET,Epic,游戏平台",
     "RULE-SET,Origin,游戏平台",
     "RULE-SET,Sony,游戏平台",
