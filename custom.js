@@ -33,7 +33,6 @@ function main(config) {
   const stripInlineIgnoreCase = (pattern) => pattern.replace(/\(\?i\)/g, "");
   const toJsRegex = (pattern) => new RegExp(stripInlineIgnoreCase(pattern), "i");
   const proRegex = /(^|[\s_-])Pro($|[\s_-])/i;
-  const clashProFilter = "(?i)(^|[[:space:]_-])Pro($|[[:space:]_-])";
   const toProGroupName = (regionName) => `${regionName}Pro`;
   const toProRegionFilter = (regionFilter) => {
     const regionBody = stripInlineIgnoreCase(regionFilter);
@@ -47,11 +46,10 @@ function main(config) {
 
   for (const [regionName, regionConfig] of Object.entries(regionFilters)) {
     const regex = toJsRegex(regionConfig.filter);
-    const isUsRegion = regionName === "美国节点";
-    const normalProxies = allProxies.filter((proxy) => proxy && proxy.name && regex.test(proxy.name) && (isUsRegion || !isProNode(proxy)));
-    const proProxies = allProxies.filter((proxy) => proxy && proxy.name && regex.test(proxy.name) && isProNode(proxy));
+    const matchedProxies = allProxies.filter((proxy) => proxy && proxy.name && regex.test(proxy.name));
+    const proProxies = matchedProxies.filter((proxy) => isProNode(proxy));
 
-    if (normalProxies.length > 0) {
+    if (matchedProxies.length > 0) {
       availableRegions.push(regionName);
       regionAndOther.push(regionName);
     }
@@ -185,7 +183,7 @@ function main(config) {
 
   for (const [regionName, regionConfig] of Object.entries(regionFilters)) {
     if (availableRegions.includes(regionName)) {
-      const regionGroup = {
+      proxyGroups.push({
         name: regionName,
         icon: regionConfig.icon,
         "include-all": true,
@@ -193,9 +191,7 @@ function main(config) {
         type: "url-test",
         interval: 300,
         tolerance: 50
-      };
-      if (regionName !== "美国节点") regionGroup["exclude-filter"] = clashProFilter;
-      proxyGroups.push(regionGroup);
+      });
     }
 
     const proGroupName = toProGroupName(regionName);
