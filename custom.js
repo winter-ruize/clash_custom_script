@@ -159,7 +159,7 @@ function main(config) {
       name: "漏网之鱼",
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png",
       type: "select",
-      proxies: pick(["节点选择", ...regionAndOther, "自动选择", "手动切换", "DIRECT"])
+      proxies: proxyFirstOptions
     }
   ];
 
@@ -419,7 +419,6 @@ function main(config) {
     "RULE-SET,OneDrive,全球直连",
     "RULE-SET,Microsoft,全球直连",
     "RULE-SET,Apple,苹果服务",
-    "RULE-SET,Telegram,节点选择",
     "RULE-SET,AI平台-国外,AI节点", 
     "RULE-SET,Epic,游戏平台",
     "RULE-SET,Origin,游戏平台",
@@ -430,6 +429,7 @@ function main(config) {
     "RULE-SET,Netflix,奈飞视频",
     "RULE-SET,ChinaMedia,国内媒体",
     "RULE-SET,ProxyMedia,国外媒体",
+    "RULE-SET,Telegram,节点选择",
     "RULE-SET,ProxyGFWlist,节点选择",
     "RULE-SET,ChinaDomain,全球直连",
     "RULE-SET,ChinaCompanyIp,全球直连",
