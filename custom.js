@@ -2,29 +2,47 @@ function main(config) {
   // 获取所有代理节点
   const allProxies = config.proxies || [];
 
+  // Clash Verge 的代理页可能不会按 proxy-groups 数组顺序渲染，给策略组加固定序号前缀用于稳定排序。
+  const GROUP = {
+    NODE: "01 节点选择",
+    AUTO: "02 自动选择",
+    MANUAL: "03 手动切换",
+    GOOGLE: "04 谷歌服务",
+    AI: "05 AI节点",
+    YOUTUBE: "06 油管视频",
+    GAME: "07 游戏平台",
+    NETFLIX: "08 奈飞视频",
+    FOREIGN_MEDIA: "09 国外媒体",
+    DOMESTIC_MEDIA: "10 国内媒体",
+    GOOGLE_FCM: "11 谷歌FCM",
+    APPLE: "12 苹果服务",
+    DIRECT: "13 全球直连",
+    FINAL: "14 漏网之鱼"
+  };
+
   // 地区过滤规则：会根据订阅内实际节点动态生成地区组，避免空分组。
   const regionFilters = {
-    "美国节点": {
+    "21 美国节点": {
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png",
       filter: "(?i)美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|US|United States"
     },
-    "香港节点": {
+    "22 香港节点": {
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png",
       filter: "(?i)港|HK|hk|Hong Kong|HongKong|hongkong"
     },
-    "台湾节点": {
+    "23 台湾节点": {
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Taiwan.png",
       filter: "(?i)台|新北|彰化|TW|Taiwan"
     },
-    "狮城节点": {
+    "24 狮城节点": {
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png",
       filter: "(?i)新加坡|坡|狮城|SG|Singapore"
     },
-    "日本节点": {
+    "25 日本节点": {
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png",
       filter: "(?i)日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan"
     },
-    "韩国节点": {
+    "26 韩国节点": {
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Korea.png",
       filter: "(?i)KR|Korea|KOR|首尔|韩|韓"
     }
@@ -70,40 +88,40 @@ function main(config) {
   const otherProxies = allProxies.filter((proxy) => isNamedProxy(proxy) && !otherRegex.test(proxy.name));
   const otherProxyNames = toProxyNames(otherProxies);
   const hasOtherNodes = otherProxyNames.length > 0;
-  if (hasOtherNodes) regionAndOther.push("其他节点");
+  if (hasOtherNodes) regionAndOther.push("27 其他节点");
 
   const pick = (items) => {
     const validGroupNames = new Set([
-      "节点选择",
-      "自动选择",
-      "手动切换",
+      GROUP.NODE,
+      GROUP.AUTO,
+      GROUP.MANUAL,
       "DIRECT",
       ...regionAndOther
     ]);
     return [...new Set(items)].filter((item) => validGroupNames.has(item));
   };
 
-  const policyProxyOptions = pick(["自动选择", ...regionAndOther, "手动切换", "DIRECT"]);
-  const proxyFirstOptions = pick(["节点选择", "自动选择", ...regionAndOther, "手动切换", "DIRECT"]);
-  const directFirstOptions = pick(["DIRECT", "节点选择", "自动选择", ...regionAndOther, "手动切换"]);
-  const usFirstOptions = pick(["美国节点Pro", "美国节点", "节点选择", "自动选择", "狮城节点Pro", "狮城节点", "香港节点Pro", "香港节点", "台湾节点Pro", "台湾节点", "日本节点Pro", "日本节点", "韩国节点Pro", "韩国节点", "其他节点", "手动切换", "DIRECT"]);
-  const gameOptions = pick(["节点选择", "自动选择", "DIRECT", ...regionAndOther, "手动切换"]);
+  const policyProxyOptions = pick([GROUP.AUTO, ...regionAndOther, GROUP.MANUAL, "DIRECT"]);
+  const proxyFirstOptions = pick([GROUP.NODE, GROUP.AUTO, ...regionAndOther, GROUP.MANUAL, "DIRECT"]);
+  const directFirstOptions = pick(["DIRECT", GROUP.NODE, GROUP.AUTO, ...regionAndOther, GROUP.MANUAL]);
+  const usFirstOptions = pick(["21 美国节点Pro", "21 美国节点", GROUP.NODE, GROUP.AUTO, "24 狮城节点Pro", "24 狮城节点", "22 香港节点Pro", "22 香港节点", "23 台湾节点Pro", "23 台湾节点", "25 日本节点Pro", "25 日本节点", "26 韩国节点Pro", "26 韩国节点", "27 其他节点", GROUP.MANUAL, "DIRECT"]);
+  const gameOptions = pick([GROUP.NODE, GROUP.AUTO, "DIRECT", ...regionAndOther, GROUP.MANUAL]);
 
   const proxyGroups = [
     {
       name: "GLOBAL",
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png",
       type: "select",
-      proxies: pick(["节点选择", "自动选择", "手动切换", ...regionAndOther])
+      proxies: pick([GROUP.NODE, GROUP.AUTO, GROUP.MANUAL, ...regionAndOther])
     },
     {
-      name: "节点选择",
+      name: GROUP.NODE,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png",
       type: "select",
       proxies: policyProxyOptions
     },
     {
-      name: "自动选择",
+      name: GROUP.AUTO,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png",
       type: "url-test",
       proxies: allProxyNames,
@@ -111,73 +129,73 @@ function main(config) {
       tolerance: 50
     },
     {
-      name: "手动切换",
+      name: GROUP.MANUAL,
       icon: "https://testingcf.jsdelivr.net/gh/shindgewongxj/WHATSINStash@master/icon/select.png",
       type: "select",
       proxies: allProxyNames
     },
     {
-      name: "谷歌服务",
+      name: GROUP.GOOGLE,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google_Search.png",
       type: "select",
       proxies: usFirstOptions
     },
     {
-      name: "AI节点",
+      name: GROUP.AI,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Bot.png",
       type: "select",
       proxies: usFirstOptions
     },
     {
-      name: "油管视频",
+      name: GROUP.YOUTUBE,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/YouTube.png",
       type: "select",
       proxies: usFirstOptions
     },
     {
-      name: "游戏平台",
+      name: GROUP.GAME,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Game.png",
       type: "select",
       proxies: gameOptions
     },
     {
-      name: "奈飞视频",
+      name: GROUP.NETFLIX,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Netflix.png",
       type: "select",
       proxies: proxyFirstOptions
     },
     {
-      name: "国外媒体",
+      name: GROUP.FOREIGN_MEDIA,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png",
       type: "select",
       proxies: proxyFirstOptions
     },
     {
-      name: "国内媒体",
+      name: GROUP.DOMESTIC_MEDIA,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/DomesticMedia.png",
       type: "select",
       proxies: directFirstOptions
     },
     {
-      name: "谷歌FCM",
+      name: GROUP.GOOGLE_FCM,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google_Search.png",
       type: "select",
       proxies: directFirstOptions
     },
     {
-      name: "苹果服务",
+      name: GROUP.APPLE,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple.png",
       type: "select",
       proxies: directFirstOptions
     },
     {
-      name: "全球直连",
+      name: GROUP.DIRECT,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png",
       type: "select",
-      proxies: ["DIRECT", "节点选择", "自动选择"]
+      proxies: ["DIRECT", GROUP.NODE, GROUP.AUTO]
     },
     {
-      name: "漏网之鱼",
+      name: GROUP.FINAL,
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png",
       type: "select",
       proxies: proxyFirstOptions
@@ -211,7 +229,7 @@ function main(config) {
 
   if (hasOtherNodes) {
     proxyGroups.push({
-      name: "其他节点",
+      name: "27 其他节点",
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png",
       type: "url-test",
       proxies: otherProxyNames,
@@ -441,33 +459,33 @@ function main(config) {
     }
   };
   config["rules"] = [
-    "RULE-SET,LocalAreaNetwork,全球直连",
-    "RULE-SET,UnBan,全球直连",
-    "RULE-SET,GoogleServer,谷歌服务",
-    "RULE-SET,GoogleFCM,谷歌FCM",
-    "RULE-SET,GoogleCN,全球直连",
-    "RULE-SET,SteamCN,全球直连",
-    "RULE-SET,Bing,全球直连",
-    "RULE-SET,OneDrive,全球直连",
-    "RULE-SET,Microsoft,全球直连",
-    "RULE-SET,Apple,苹果服务",
-    "RULE-SET,AI平台-国外,AI节点",
-    "RULE-SET,Epic,游戏平台",
-    "RULE-SET,Origin,游戏平台",
-    "RULE-SET,Sony,游戏平台",
-    "RULE-SET,Steam,游戏平台",
-    "RULE-SET,Nintendo,游戏平台",
-    "RULE-SET,YouTube,油管视频",
-    "RULE-SET,Netflix,奈飞视频",
-    "RULE-SET,ChinaMedia,国内媒体",
-    "RULE-SET,ProxyMedia,国外媒体",
-    "RULE-SET,Telegram,节点选择",
-    "RULE-SET,ProxyGFWlist,节点选择",
-    "RULE-SET,ChinaDomain,全球直连",
-    "RULE-SET,ChinaCompanyIp,全球直连",
-    "RULE-SET,Download,全球直连",
-    "GEOIP,CN,全球直连",
-    "MATCH,漏网之鱼"
+    `${"RULE-SET,LocalAreaNetwork,"}${GROUP.DIRECT}`,
+    `${"RULE-SET,UnBan,"}${GROUP.DIRECT}`,
+    `${"RULE-SET,GoogleServer,"}${GROUP.GOOGLE}`,
+    `${"RULE-SET,GoogleFCM,"}${GROUP.GOOGLE_FCM}`,
+    `${"RULE-SET,GoogleCN,"}${GROUP.DIRECT}`,
+    `${"RULE-SET,SteamCN,"}${GROUP.DIRECT}`,
+    `${"RULE-SET,Bing,"}${GROUP.DIRECT}`,
+    `${"RULE-SET,OneDrive,"}${GROUP.DIRECT}`,
+    `${"RULE-SET,Microsoft,"}${GROUP.DIRECT}`,
+    `${"RULE-SET,Apple,"}${GROUP.APPLE}`,
+    `${"RULE-SET,AI平台-国外,"}${GROUP.AI}`,
+    `${"RULE-SET,Epic,"}${GROUP.GAME}`,
+    `${"RULE-SET,Origin,"}${GROUP.GAME}`,
+    `${"RULE-SET,Sony,"}${GROUP.GAME}`,
+    `${"RULE-SET,Steam,"}${GROUP.GAME}`,
+    `${"RULE-SET,Nintendo,"}${GROUP.GAME}`,
+    `${"RULE-SET,YouTube,"}${GROUP.YOUTUBE}`,
+    `${"RULE-SET,Netflix,"}${GROUP.NETFLIX}`,
+    `${"RULE-SET,ChinaMedia,"}${GROUP.DOMESTIC_MEDIA}`,
+    `${"RULE-SET,ProxyMedia,"}${GROUP.FOREIGN_MEDIA}`,
+    `${"RULE-SET,Telegram,"}${GROUP.NODE}`,
+    `${"RULE-SET,ProxyGFWlist,"}${GROUP.NODE}`,
+    `${"RULE-SET,ChinaDomain,"}${GROUP.DIRECT}`,
+    `${"RULE-SET,ChinaCompanyIp,"}${GROUP.DIRECT}`,
+    `${"RULE-SET,Download,"}${GROUP.DIRECT}`,
+    `${"GEOIP,CN,"}${GROUP.DIRECT}`,
+    `${"MATCH,"}${GROUP.FINAL}`
   ];
   return config;
 }
