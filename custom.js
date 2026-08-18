@@ -167,6 +167,12 @@ function main(config) {
       proxies: directFirstOptions
     },
     {
+      name: "微软商店",
+      icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png",
+      type: "select",
+      proxies: directFirstOptions
+    },
+    {
       name: "全球直连",
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png",
       type: "select",
@@ -448,6 +454,14 @@ function main(config) {
     "RULE-SET,SteamCN,全球直连",
     "RULE-SET,Bing,全球直连",
     "RULE-SET,OneDrive,全球直连",
+    "DOMAIN-SUFFIX,store.microsoft.com,微软商店",
+    "DOMAIN,storeedgefd.dsx.mp.microsoft.com,微软商店",
+    "DOMAIN,displaycatalog.mp.microsoft.com,微软商店",
+    "DOMAIN,purchase.mp.microsoft.com,微软商店",
+    "DOMAIN,licensing.mp.microsoft.com,微软商店",
+    "DOMAIN,tlu.dl.delivery.mp.microsoft.com,微软商店",
+    "DOMAIN,fe3.delivery.mp.microsoft.com,微软商店",
+    "DOMAIN,storecatalogrevocation.storequality.microsoft.com,微软商店",
     "RULE-SET,Microsoft,全球直连",
     "RULE-SET,Apple,苹果服务",
     "RULE-SET,AI平台-国外,AI节点",
