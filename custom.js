@@ -82,7 +82,6 @@ function main(config) {
   const policyProxyOptions = pick(["自动选择", ...regionAndOther, "手动切换", "DIRECT"]);
   const proxyFirstOptions = pick(["节点选择", "自动选择", ...regionAndOther, "手动切换", "DIRECT"]);
   const directFirstOptions = pick(["DIRECT", "节点选择", "自动选择", ...regionAndOther, "手动切换"]);
-  const usFirstOptions = pick(["美国节点Pro", "美国节点", "节点选择", "自动选择", "狮城节点Pro", "狮城节点", "香港节点Pro", "香港节点", "台湾节点Pro", "台湾节点", "日本节点Pro", "日本节点", "韩国节点Pro", "韩国节点", "其他节点", "手动切换", "DIRECT"]);
   const gameOptions = pick(["节点选择", "自动选择", "DIRECT", ...regionAndOther, "手动切换"]);
 
   const proxyGroups = [
@@ -117,19 +116,19 @@ function main(config) {
       name: "谷歌服务",
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google_Search.png",
       type: "select",
-      proxies: usFirstOptions
+      proxies: proxyFirstOptions
     },
     {
       name: "AI节点",
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Bot.png",
       type: "select",
-      proxies: usFirstOptions
+      proxies: proxyFirstOptions
     },
     {
       name: "油管视频",
       icon: "https://testingcf.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/YouTube.png",
       type: "select",
-      proxies: usFirstOptions
+      proxies: proxyFirstOptions
     },
     {
       name: "游戏平台",
